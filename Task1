@@ -1,0 +1,120 @@
+using System;
+
+public class Fraction
+{
+    private readonly int _numerator;
+    private readonly int _denominator;
+
+    public Fraction(int numerator, int denominator)
+    {
+        if (denominator == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(denominator), "Знаменатель не может быть равен нулю.");
+        }
+        
+        _numerator = numerator;
+        _denominator = denominator;
+        Simplify(); // Упрощение дроби
+    }
+
+    public int Numerator => _numerator;
+    public int Denominator => _denominator;
+    
+    public double DecimalValue => (double)_numerator / _denominator;
+
+    public Fraction Add(Fraction other)
+    {
+        var newNumerator = _numerator * other._denominator + other._numerator * _denominator;
+        var newDenominator = _denominator * other._denominator;
+        return new Fraction(newNumerator, newDenominator);
+    }
+
+    public Fraction Subtract(Fraction other)
+    {
+        var newNumerator = _numerator * other._denominator - other._numerator * _denominator;
+        var newDenominator = _denominator * other._denominator;
+        return new Fraction(newNumerator, newDenominator);
+    }
+
+    public Fraction Multiply(Fraction other)
+    {
+        var newNumerator = _numerator * other._numerator;
+        var newDenominator = _denominator * other._denominator;
+        return new Fraction(newNumerator, newDenominator);
+    }
+
+    public Fraction Divide(Fraction other)
+    {
+        if (other._numerator == 0)
+        {
+            throw new InvalidOperationException("Невозможно разделить на ноль.");
+        }
+        
+        var newNumerator = _numerator * other._denominator;
+        var newDenominator = _denominator * other._numerator;
+        return new Fraction(newNumerator, newDenominator);
+    }
+
+    private void Simplify()
+    {
+        var gcd = GCD(Math.Abs(_numerator), Math.Abs(_denominator));
+        _numerator /= gcd;
+        _denominator /= gcd;
+
+        if (_denominator < 0)
+        {
+            _numerator *= -1;
+            _denominator *= -1;
+        }
+    }
+
+    private static int GCD(int a, int b)
+    {
+        while (b != 0)
+        {
+            var temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    public override string ToString() => $"{_numerator}/{_denominator}";
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        try
+        {
+            var f1 = new Fraction(3, 4); // Дробь 3/4
+            var f2 = new Fraction(1, 2); // Дробь 1/2
+
+            Console.WriteLine($"f1 = {f1}");
+            Console.WriteLine($"f2 = {f2}");
+
+            var sum = f1.Add(f2); // Сумма дробей
+            Console.WriteLine($"Сумма: {sum}");
+
+            var difference = f1.Subtract(f2); // Разница дробей
+            Console.WriteLine($"Разность: {difference}");
+
+            var product = f1.Multiply(f2); // Произведение дробей
+            Console.WriteLine($"Произведение: {product}");
+
+            var quotient = f1.Divide(f2); // Частное дробей
+            Console.WriteLine($"Частное: {quotient}");
+
+            Console.WriteLine($"Десятичное значение f1: {f1.DecimalValue}");
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}
