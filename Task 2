@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+public class Validator
+{
+    public static bool IsValidEmail(string email)
+    {
+        const string EmailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        
+        return Regex.IsMatch(email, EmailPattern);
+    }
+    
+    public static bool IsValidPhoneNumber(string phone)
+    {
+        const string PhonePattern = @"^\+7\d{10}$";
+        
+        return Regex.IsMatch(phone, PhonePattern);
+    }
+    
+    public static IEnumerable<string> ExtractDates(string text)
+    {
+        const string DatePattern = @"\b\d{2}\.\d{2}\.\d{4}\b";
+        
+        return Regex.Matches(text, DatePattern).Cast<Match>().Select(m => m.Value);
+    }
+    
+    public static string HideDigits(string text)
+    {
+        const string DigitPattern = @"\d";
+        
+        return Regex.Replace(text, DigitPattern, "*");
+    }
+    
+    public static string[] SplitByCommasPointsOrSpaces(string text)
+    {
+        const string DelimiterPattern = @"[ ,.]+";
+        
+        return Regex.Split(text, DelimiterPattern);
+    }
+}
+
+public class Program
+{
+    private static void DisplayMenu()
+    {
+        Console.WriteLine("Выберите операцию:");
+        Console.WriteLine("1. Проверка email-адреса");
+        Console.WriteLine("2. Проверка номера телефона");
+        Console.WriteLine("3. Поиск дат в формате dd.mm.yyyy");
+        Console.WriteLine("4. Замена всех цифр на *");
+        Console.WriteLine("5. Разбиение строки по запятым, точкам или пробелам");
+        Console.WriteLine("0. Выход");
+    }
+
+    public static void Main(string[] args)
+    {
+        while (true)
+        {
+            DisplayMenu();
+            
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    Console.WriteLine("Введите email:");
+                    string email = Console.ReadLine();
+                    Console.WriteLine(Validator.IsValidEmail(email) ? "Email корректен." : "Email некорректен.");
+                    break;
+                
+                case "2":
+                    Console.WriteLine("Введите номер телефона:");
+                    string phone = Console.ReadLine();
+                    Console.WriteLine(Validator.IsValidPhoneNumber(phone) ? "Номер телефона корректен." : "Номер телефона некорректен.");
+                    break;
+                
+                case "3":
+                    Console.WriteLine("Введите текст для поиска дат:");
+                    string text = Console.ReadLine();
+                    var dates = Validator.ExtractDates(text);
+                    if (!dates.Any())
+                    {
+                        Console.WriteLine("Даты не найдены.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Найденные даты: {string.Join(", ", dates)}");
+                    }
+                    break;
+                
+                case "4":
+                    Console.WriteLine("Введите текст для замены цифр:");
+                    string input = Console.ReadLine();
+                    Console.WriteLine($"Результат: {Validator.HideDigits(input)}");
+                    break;
+                
+                case "5":
+                    Console.WriteLine("Введите текст для разбиения:");
+                    string inputText = Console.ReadLine();
+                    var parts = Validator.SplitByCommasPointsOrSpaces(inputText);
+                    Console.WriteLine($"Результат: {string.Join(" | ", parts)}");
+                    break;
+                
+                case "0":
+                    return;
+                
+                default:
+                    Console.WriteLine("Неверный выбор.");
+                    break;
+            }
+        }
+    }
+}
